@@ -105,11 +105,63 @@ module.exports = class PetController {
     }
 
     static async getPetById(req, res) {
-        res.status(200).json({message:'Em Breve'})
+        const id = req.params.id
+
+        if(!mongoose.Types.ObjectId.isValid(id)) {
+            res.status(422).json({message: 'O ID do pet é obrigatório'})
+            return
+        }
+
+        try{
+            const pet = await Pet.findById(id)
+
+            if(!pet) {
+                res.status(404).json({message: 'Pet não encontrado'})
+                return
+            }
+
+            res.status(200).json({ sucess: true, data: pet })
+        } catch(error){
+            res.status(500).json({message: error})
+        }
+
+        const pet = await Pet.findById(id)
+
+        if (!pet) {
+            res.status(404).json({message: 'Pet não encontrado'})
+            return
+        }
+
+        res.status(200).json({ sucess: true, data: pet })
     }
 
     static async removeById(req, res) {
-        res.status(200).json({message:'Em Breve'})
+        const {id} = req.params
+
+        if(!mongoose.Types.ObjectId.isValid(id)) {
+            res.status(422).json({message: 'O ID do pet é obrigatório'})
+            return
+        }
+
+        const pet = await Pet.findById(id)
+
+        if (!pet) {
+            res.status(404).json({message: 'Pet não encontrado'})
+            return
+        }
+
+        const token = getToken(req)
+        const user = await getUserByToken(token)
+
+        if(pet.user._id.toString() !== user._id.toString()) {
+            res.status(403).json({message: 'Apenas o dono do pet pode removê-lo'})
+            return
+        }
+    
+
+    await Pet.findByIdAndDelete(id)
+
+        res.status(200).json({message: 'Pet removido com sucesso', data: pet})
     }
 
     static async updatePet(req, res) {
