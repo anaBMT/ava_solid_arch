@@ -1,0 +1,108 @@
+const Pet = require('../models/Pet')
+const jwt = require('jsonwebtoken')
+const bcrypt = require('bcrypt')
+
+const mongoose = require('mongoose')
+
+const getToken = require('../helpers/get-tokens')
+const getUserByToken = require('../helpers/get-user-by-token')
+const { countDocuments } = require('../models/User')
+
+module.exports = class PetController {
+    static async create(req, res){
+        const {name, age, weight, color} = req.body
+
+        if(!name){
+            res.status(422).json({message: 'O nome é obrigatório'})
+            return
+        }
+
+        if(!age){
+            res.status(422).json({message: 'A idade é obrigatória'})
+            return
+        }
+
+        if(!weight){
+            res.status(422).json({message: 'O peso é obrigatório'})
+            return
+        }
+
+        if(!color){
+            res.status(422).json({message: 'A cor é obrigatória'})
+            return
+        }
+
+        if(!req.files || req.files.length === 0) {
+            res.status(422).json({message: 'A imagem é obrigatória'})
+            return
+        }   
+
+        const images = req.files.map((file) => file.filename)
+
+        const token = getToken(req)
+        const user = await getUserByToken(token)
+
+        const pet = new Pet({
+            name,
+            age,
+            weight,
+            color,
+            images,
+            available: true,
+            user: {
+                _id: user._id,
+                name: user.name,
+                phone: user.phone
+            },
+        })
+
+        try {
+            const newPet = await pet.save()
+            res.status(201).json({
+                message: 'Pet cadastrado com sucesso!',
+                data: newPet,
+            })
+        } catch (error) {
+            res.status(500).json({message: error})
+        }
+    }
+
+    static async getAll(req, res) {
+        const pets = await Pet.find().sort('-createdAt')
+
+        res.status(200).json({
+            sucess: true,
+            count: pets.length,
+            data: pets,
+        })
+        return
+    }
+
+    static async getAllUserPets(req, res) {
+        res.status(200).json({message:'Em Breve'}) 
+    }
+    
+    static async getAllUserAdoptions(req, res) {
+        res.status(200).json({message:'Em Breve'}) 
+    }
+
+    static async getPetById(req, res) {
+        res.status(200).json({message:'Em Breve'})
+    }
+
+    static async removeById(req, res) {
+        res.status(200).json({message:'Em Breve'})
+    }
+
+    static async updatePet(req, res) {
+        res.status(200).json({message:'Em Breve'})
+    }
+
+    static async schedule(req, res) {
+        res.status(200).json({message:'Em Breve'})
+    }
+
+    static async concludeAdoption(req, res) {
+        res.status(200).json({message:'Em Breve'})
+    }
+}
