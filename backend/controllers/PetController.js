@@ -75,7 +75,7 @@ module.exports = class PetController {
             count: pets.length,
             data: pets,
         })
-        return
+        return 
     }
 
     static async getAllUserPets(req, res) {
