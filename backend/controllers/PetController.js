@@ -131,6 +131,8 @@ module.exports = class PetController {
             res.status(404).json({message: 'Pet não encontrado'})
             return
         }
+
+        res.status(200).json({ sucess: true, data: pet })
     }
 
     static async removeById(req, res) {
